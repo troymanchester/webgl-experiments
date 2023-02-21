@@ -40,34 +40,34 @@ function drawScene(gl, programInfo, buffers) {
 	let count = 0;
 	while (count < buffers.objectCount) {
 
-  // Tell WebGL how to pull out the positions from the position
-  // buffer into the vertexPosition attribute.
-  setPositionAttribute(gl, buffers.positions[count], programInfo);
-	// Ditto for color
-	setColorAttribute(gl, buffers.colors[count], programInfo);
-
-  // Tell WebGL to use our program when drawing
-  gl.useProgram(programInfo.program);
-
-  // Set the shader uniforms
-  gl.uniformMatrix4fv(
-    programInfo.uniformLocations.projectionMatrix,
-    false,
-    projectionMatrix
-  );
-  gl.uniformMatrix4fv(
-    programInfo.uniformLocations.modelViewMatrix,
-    false,
-    modelViewMatrix
-  );
-
-  {
-    const offset = 0;
-    const vertexCount = 4;
-    gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
-  }
-
-	count ++;
+  	// Tell WebGL how to pull out the positions from the position
+  	// buffer into the vertexPosition attribute.
+  	setPositionAttribute(gl, buffers.positions[count], programInfo);
+		// Ditto for color
+		setColorAttribute(gl, buffers.colors[count], programInfo);
+		
+  	// Tell WebGL to use our program when drawing
+  	gl.useProgram(programInfo.program);
+		
+  	// Set the shader uniforms
+  	gl.uniformMatrix4fv(
+  	  programInfo.uniformLocations.projectionMatrix,
+  	  false,
+  	  projectionMatrix
+  	);
+  	gl.uniformMatrix4fv(
+  	  programInfo.uniformLocations.modelViewMatrix,
+  	  false,
+  	  modelViewMatrix
+  	);
+		
+  	{
+  	  const offset = 0;
+  	  const vertexCount = 4;
+  	  gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+  	}
+	
+		count ++;
 	}
 }
 

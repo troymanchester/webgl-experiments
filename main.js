@@ -94,12 +94,6 @@ function main() {
 		}
 	`;
 
-	/*const fsSource = `
-    void main() {
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
-  `;*/
-
 	// Initialize a shader program; this is where all the lighting
 	// for the vertices and so forth is established.
 	const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
@@ -124,11 +118,8 @@ function main() {
 	// objects we'll be drawing.
 	let buffers = initBuffers(gl);
 
-	// Draw the scene
-	//drawScene(gl, programInfo, buffers);
-
 	let last = 0;
-	// Draw the scene repeatedly
+	// Draw the scene repeatedly - 1s "steps"
 	function render(now) {
   	if(!last || now - last >= 1000) {
 			last = now;
