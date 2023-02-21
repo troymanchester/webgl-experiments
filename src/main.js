@@ -147,15 +147,9 @@ function main() {
 		buffers = initBuffers(gl);
 	}
 
-	/*function switchModes() {
-		const checkbox = document.getElementById("useAverage").checked;
-	}*/
-
 	document.getElementById("playButton").onclick = startRendering;
 	document.getElementById("pauseButton").onclick = stopRendering;
 	document.getElementById("resetButton").onclick = resetBuffers;
-	//document.getElementById("useAverage").ontoggle = switchModes;
-	//const cb = document.querySelector('#accept');
 }
 
 main();
