@@ -57,7 +57,6 @@ function loadShader(gl, type, source) {
   return shader;
 }
 
-
 function main() {
   const canvas = document.querySelector("#glcanvas");
   // Init the GL context
@@ -119,18 +118,44 @@ function main() {
 	let buffers = initBuffers(gl);
 
 	let last = 0;
+	let isRendering = false;
 	// Draw the scene repeatedly - 1s "steps"
 	function render(now) {
+		if (isRendering !== true) {
+			return;
+		}
+
   	if(!last || now - last >= 1000) {
 			last = now;
 			//update colors..
-			buffers = updateBuffers(gl,buffers);
+			buffers = updateBuffers(gl,buffers, document.getElementById("useAverage").checked);
 			drawScene(gl, programInfo, buffers);
 		}
   	requestAnimationFrame(render);
 	}
 
-	requestAnimationFrame(render);
+	function startRendering() {
+		isRendering = true;
+		requestAnimationFrame(render);
+	}
+
+	function stopRendering() {
+		isRendering = false;
+	}
+
+	function resetBuffers() {
+		buffers = initBuffers(gl);
+	}
+
+	/*function switchModes() {
+		const checkbox = document.getElementById("useAverage").checked;
+	}*/
+
+	document.getElementById("playButton").onclick = startRendering;
+	document.getElementById("pauseButton").onclick = stopRendering;
+	document.getElementById("resetButton").onclick = resetBuffers;
+	//document.getElementById("useAverage").ontoggle = switchModes;
+	//const cb = document.querySelector('#accept');
 }
 
 main();

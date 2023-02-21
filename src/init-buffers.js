@@ -13,11 +13,14 @@ function initBuffers(gl) {
 	};
 }
 
-function updateBuffers(gl, buffers) {
-	// use initColorBuffers to use random colors during update step
-	const colorBuffers = initColorBuffers(gl,buffers.objectCount);
-	// use updateColorBuffers to "average" colors across neighbors (grid will converge to gray)
-	//const colorBuffers = updateColorBuffers(gl,buffers.objectCount,buffers.colors);
+function updateBuffers(gl, buffers, average) {
+	let colorBuffers;
+	if (average) {
+		colorBuffers = updateColorBuffers(gl,buffers.objectCount,buffers.colors);
+	} else {
+		// random
+		colorBuffers = initColorBuffers(gl,buffers.objectCount);
+	}
 
 	return {
 		positions: buffers.positions,
