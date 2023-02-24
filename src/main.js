@@ -113,9 +113,16 @@ function main() {
 	  },
 	};
 
+	var slider = document.getElementById("tempSetting");
+	let sliderVal = slider.value;
+	slider.oninput = function() {
+  	sliderVal = slider.value;
+	}
+
 	// Here's where we call the routine that builds all the
 	// objects we'll be drawing.
-	let buffers = initBuffers(gl);
+	let buffers = initBuffers(gl,
+		sliderVal, document.getElementById("useBinarySensing").checked);
 
 	let last = 0;
 	let isRendering = false;
@@ -127,8 +134,10 @@ function main() {
 
   	if(!last || now - last >= 1000) {
 			last = now;
-			//update colors..
-			buffers = updateBuffers(gl,buffers, document.getElementById("useAverage").checked);
+			buffers = updateBuffers(gl,buffers,
+															sliderVal,
+															document.getElementById("useFusion").checked,
+															document.getElementById("useBinarySensing").checked);
 			drawScene(gl, programInfo, buffers);
 		}
   	requestAnimationFrame(render);

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sensor Fusion Visualizer</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous"
+      defer></script>
+    <script src="main.js" type="module" defer></script>
+  </head>
+
+  <body>
+		<h1>Sensor Fusion Visualizer</h1>
+		<p>This is a WebGL visualization for demonstrating the concept of sensor fusion in a distributed sensor network.</p>
+		<p>Sensor fusion involves synthesizing data from multiple sensors in order to decrease uncertainty of the information being sensed.</p>
+		<p>A grid of temperature sensors is simulated below. A red box = hotter temperature reading, blue box = colder temperature reading.</p>
+		<p>There is a slider to control the environment temperature. Each simulated sensor will "read" the environment temperature, with a small amount of psuedo-random noise applied to the reading to simulate real-world sensor noise.</p>
+		<p>If you check the box labeled "Enable Sensor Fusion", sensor fusion will be performed - it should be noticeable in the visualization. Sensor readings will be run through a 1-pass spatial recursion algorithm (average each sensor reading with those of it's nearest neighbors).</p>
+    <canvas id="glcanvas" width="680" height="680"></canvas>
+    <br></br>
+    <button id="playButton">Play</button>&emsp;
+    <button id="pauseButton">Pause</button>&emsp;
+    <button id="resetButton">Reset</button>&emsp;
+		<br></br>
+    <input type="checkbox" id="useFusion">
+    <label for="useFusion">Enable Sensor Fusion</label>
+		<input type="checkbox" id="useBinarySensing">
+    <label for="useBinarySensing">Enable Binary Sensor readings</label>
+		<br></br>
+		<div class="slidecontainer">
+			Simulation Temperature&emsp;
+			<input type="range" min="0" max="100" value="50" id="tempSetting">
+		</div>
+  </body>
+</html>

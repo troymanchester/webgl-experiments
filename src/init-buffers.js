@@ -1,10 +1,10 @@
 // this is a hack to "remember" the colors used after we've written them to GL buffer..
 let cachedColorBuffers = [];
 
-function initBuffers(gl) {
+function initBuffers(gl, initialVal, useBinaryReadings) {
 	const objCount = 256
 	const positionBuffers = initPositionBuffers(gl,objCount);
-	const colorBuffers = initColorBuffers(gl,objCount);
+	const colorBuffers = initColorBuffersNoGreen(gl,objCount, initialVal, useBinaryReadings);
 
 	return {
 		positions: positionBuffers,
@@ -13,13 +13,14 @@ function initBuffers(gl) {
 	};
 }
 
-function updateBuffers(gl, buffers, average) {
+function updateBuffers(gl, buffers, initialVal, useFusion, useBinaryReadings) {
 	let colorBuffers;
-	if (average) {
-		colorBuffers = updateColorBuffers(gl,buffers.objectCount,buffers.colors);
+	if (useFusion) {
+		// after init, do 1 pass of sensor fusion
+		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,useBinaryReadings);
+		colorBuffers = doSensorFusion(gl,buffers.objectCount,buffers.colors);
 	} else {
-		// random
-		colorBuffers = initColorBuffers(gl,buffers.objectCount);
+		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,useBinaryReadings);
 	}
 
 	return {
@@ -29,14 +30,31 @@ function updateBuffers(gl, buffers, average) {
 	};
 }
 
-function initColorBuffers(gl, objCount) {
+function initColorBuffersNoGreen(gl, objCount, initialVal, binary) {
 	let colorBuffers = [];
 	let count = 0;
 
 	while (count < objCount) {
-		const _r = Math.random();
-		const _g = Math.random();
-		const _b = Math.random();
+		let _r;
+		const _g = 0.0;
+		let _b;
+
+		// TODO pull this logic into a helper - pass RGB vals into this function
+		if (binary) {
+			if (Math.random()*100 > 50) {
+				_r = 1.0;
+				_b = 0.0;
+			} else {
+				_r = 0.0;
+				_b = 1.0;
+			}
+		} else {
+			// noise can be in either direction (+ or -)
+			let noise = (Math.random()-Math.random())*0.5;
+			_r = initialVal*0.01 + noise;
+			_b = 1 - _r + noise;
+		}
+		
   	const colors = [
   	  _r,
   	  _g,
@@ -115,7 +133,7 @@ function getAverageColorWithNeighbors(index, gridSize, objectCount, colorBuffers
 				 getRight(index,gridSize,colorBuffers,offset))/5.0;
 }
 
-function updateColorBuffers(gl, objectCount) {
+function doSensorFusion(gl, objectCount) {
 	let newColorBuffers = [];
 	let gridSize = Math.sqrt(objectCount);
 	let updatedColorBuffersCache = [];
