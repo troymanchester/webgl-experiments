@@ -128,10 +128,6 @@ function main() {
 	let isRendering = false;
 	// Draw the scene repeatedly - 1s "steps"
 	function render(now) {
-		if (isRendering !== true) {
-			return;
-		}
-
   	if(!last || now - last >= 1000) {
 			last = now;
 			buffers = updateBuffers(gl,buffers,
@@ -140,7 +136,10 @@ function main() {
 															document.getElementById("useBinarySensing").checked);
 			drawScene(gl, programInfo, buffers);
 		}
-  	requestAnimationFrame(render);
+		
+		if (isRendering === true) {
+			requestAnimationFrame(render);
+		}
 	}
 
 	function startRendering() {
@@ -159,6 +158,8 @@ function main() {
 	document.getElementById("playButton").onclick = startRendering;
 	document.getElementById("pauseButton").onclick = stopRendering;
 	document.getElementById("resetButton").onclick = resetBuffers;
+
+	render(performance.now());
 }
 
 main();
