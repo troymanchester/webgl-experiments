@@ -17,6 +17,7 @@
 		<p>Sensor fusion involves synthesizing data from multiple sensors in order to decrease uncertainty of the information being sensed.</p>
 		<p>A grid of temperature sensors is simulated below. A red box = hotter temperature reading, blue box = colder temperature reading.</p>
 		<p>There is a slider to control the environment temperature. Each simulated sensor will "read" the environment temperature, with a small amount of psuedo-random noise applied to the reading to simulate real-world sensor noise.</p>
+		<p>There is another slider to simulate offline/malfunctioning sensors. A "dead" sensor will show up as a black box in the grid.</p>
 		<p>If you check the box labeled "Enable Sensor Fusion", sensor fusion will be performed - it should be noticeable in the visualization. Sensor readings will be run through a 1-pass spatial recursion algorithm (average each sensor reading with those of it's nearest neighbors).</p>
     <canvas id="glcanvas" width="680" height="680"></canvas>
     <br></br>
@@ -32,6 +33,10 @@
 		<div class="slidecontainer">
 			Simulation Temperature&emsp;
 			<input type="range" min="0" max="100" value="50" id="tempSetting">
+		</div>
+		<div class="slidecontainer">
+			Dead Sensor Percentage&emsp;
+			<input type="range" min="0" max="100" value="5" id="deadSetting">
 		</div>
   </body>
 </html>

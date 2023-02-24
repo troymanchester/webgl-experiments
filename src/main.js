@@ -113,16 +113,22 @@ function main() {
 	  },
 	};
 
-	var slider = document.getElementById("tempSetting");
-	let sliderVal = slider.value;
-	slider.oninput = function() {
-  	sliderVal = slider.value;
+	var tempSlider = document.getElementById("tempSetting");
+	let tempSliderVal = tempSlider.value;
+	tempSlider.oninput = function() {
+  	tempSliderVal = tempSlider.value;
+	}
+
+	var deadSlider = document.getElementById("deadSetting");
+	let deadSliderVal = deadSlider.value;
+	deadSlider.oninput = function() {
+  	deadSliderVal = deadSlider.value;
 	}
 
 	// Here's where we call the routine that builds all the
 	// objects we'll be drawing.
 	let buffers = initBuffers(gl,
-		sliderVal, document.getElementById("useBinarySensing").checked);
+		tempSliderVal, deadSliderVal, document.getElementById("useBinarySensing").checked);
 
 	let last = 0;
 	let isRendering = false;
@@ -131,12 +137,13 @@ function main() {
   	if(!last || now - last >= 1000) {
 			last = now;
 			buffers = updateBuffers(gl,buffers,
-															sliderVal,
+															tempSliderVal,
+															deadSliderVal,
 															document.getElementById("useFusion").checked,
 															document.getElementById("useBinarySensing").checked);
 			drawScene(gl, programInfo, buffers);
 		}
-		
+
 		if (isRendering === true) {
 			requestAnimationFrame(render);
 		}

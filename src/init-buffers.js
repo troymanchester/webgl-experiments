@@ -1,10 +1,10 @@
 // this is a hack to "remember" the colors used after we've written them to GL buffer..
 let cachedColorBuffers = [];
 
-function initBuffers(gl, initialVal, useBinaryReadings) {
+function initBuffers(gl, initialVal, deadSensorPct, useBinaryReadings) {
 	const objCount = 256
 	const positionBuffers = initPositionBuffers(gl,objCount);
-	const colorBuffers = initColorBuffersNoGreen(gl,objCount, initialVal, useBinaryReadings);
+	const colorBuffers = initColorBuffersNoGreen(gl,objCount, initialVal, deadSensorPct, useBinaryReadings);
 
 	return {
 		positions: positionBuffers,
@@ -13,14 +13,14 @@ function initBuffers(gl, initialVal, useBinaryReadings) {
 	};
 }
 
-function updateBuffers(gl, buffers, initialVal, useFusion, useBinaryReadings) {
+function updateBuffers(gl, buffers, initialVal, deadSensorPct, useFusion, useBinaryReadings) {
 	let colorBuffers;
 	if (useFusion) {
 		// after init, do 1 pass of sensor fusion
-		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,useBinaryReadings);
+		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,deadSensorPct,useBinaryReadings);
 		colorBuffers = doSensorFusion(gl,buffers.objectCount,buffers.colors);
 	} else {
-		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,useBinaryReadings);
+		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,deadSensorPct,useBinaryReadings);
 	}
 
 	return {
@@ -30,7 +30,7 @@ function updateBuffers(gl, buffers, initialVal, useFusion, useBinaryReadings) {
 	};
 }
 
-function initColorBuffersNoGreen(gl, objCount, initialVal, binary) {
+function initColorBuffersNoGreen(gl, objCount, initialVal, offlineSensorPct, binary) {
 	let colorBuffers = [];
 	let count = 0;
 
@@ -53,6 +53,12 @@ function initColorBuffersNoGreen(gl, objCount, initialVal, binary) {
 			let noise = (Math.random()-Math.random())*0.5;
 			_r = initialVal*0.01 + noise;
 			_b = 1 - _r + noise;
+		}
+
+		// Simulate "dead" sensors
+		if (Math.random()*100 < offlineSensorPct) {
+			_r = 0.0;
+			_b = 0.0;
 		}
 		
   	const colors = [
