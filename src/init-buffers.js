@@ -1,10 +1,10 @@
-// this is a hack to "remember" the colors used after we've written them to GL buffer..
-let cachedColorBuffers = [];
+// this is used to "remember" the colors after we've written them to GL buffer.
+let cachedColorArrays = [];
 
-function initBuffers(gl, initialVal, deadSensorPct, useBinaryReadings) {
+function initBuffers(gl, temperature, offlineSensors) {
 	const objCount = 256
 	const positionBuffers = initPositionBuffers(gl,objCount);
-	const colorBuffers = initColorBuffersNoGreen(gl,objCount, initialVal, deadSensorPct, useBinaryReadings);
+	const colorBuffers = initColorBuffers(gl,objCount, temperature, offlineSensors, false);
 
 	return {
 		positions: positionBuffers,
@@ -13,14 +13,14 @@ function initBuffers(gl, initialVal, deadSensorPct, useBinaryReadings) {
 	};
 }
 
-function updateBuffers(gl, buffers, initialVal, deadSensorPct, useFusion, useBinaryReadings) {
+function updateBuffers(gl, buffers, temperature, offlineSensors, useSensorFusion, useBinaryReadings) {
 	let colorBuffers;
-	if (useFusion) {
+	if (useSensorFusion) {
 		// after init, do 1 pass of sensor fusion
-		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,deadSensorPct,useBinaryReadings);
+		colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature,offlineSensors,useBinaryReadings);
 		colorBuffers = doSensorFusion(gl,buffers.objectCount,buffers.colors);
 	} else {
-		colorBuffers = initColorBuffersNoGreen(gl,buffers.objectCount,initialVal,deadSensorPct,useBinaryReadings);
+		colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature,offlineSensors,useBinaryReadings);
 	}
 
 	return {
@@ -30,75 +30,70 @@ function updateBuffers(gl, buffers, initialVal, deadSensorPct, useFusion, useBin
 	};
 }
 
-function initColorBuffersNoGreen(gl, objCount, initialVal, offlineSensorPct, binary) {
+function colorArrayFromRGB(red,green,blue) {
+	return [
+		red, green, blue, 1.0,
+		red, green, blue, 1.0,
+		red, green, blue, 1.0,
+		red, green, blue, 1.0,
+	];
+}
+
+function initGLBufferFromColorArray(gl, colors) {
+  const colorBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+	return colorBuffer;
+}
+
+function initColorBuffers(gl, objCount, temperature, offlineSensors, useBinaryReadings) {
 	let colorBuffers = [];
 	let count = 0;
 
 	while (count < objCount) {
-		let _r;
-		const _g = 0.0;
-		let _b;
+		// green is always 0 since we're using red-blue spectrum to represent temperature
+		let red;
+		const green = 0.0;
+		let blue;
 
-		// TODO pull this logic into a helper - pass RGB vals into this function
-		if (binary) {
+		// Ignore noise if using binary sensor readings
+		if (useBinaryReadings) {
 			if (Math.random()*100 > 50) {
-				_r = 1.0;
-				_b = 0.0;
+				red = 1.0;
+				blue = 0.0;
 			} else {
-				_r = 0.0;
-				_b = 1.0;
+				red = 0.0;
+				blue = 1.0;
 			}
 		} else {
 			// noise can be in either direction (+ or -)
 			let noise = (Math.random()-Math.random())*0.5;
-			_r = initialVal*0.01 + noise;
-			_b = 1 - _r + noise;
+			red = temperature*0.01 + noise;
+			blue = 1 - red + noise;
 		}
 
-		// Simulate "dead" sensors
-		if (Math.random()*100 < offlineSensorPct) {
-			_r = 0.0;
-			_b = 0.0;
+		// Simulate some % of "dead" sensors
+		if (Math.random()*100 < offlineSensors) {
+			red = 0.0;
+			blue = 0.0;
 		}
-		
-  	const colors = [
-  	  _r,
-  	  _g,
-  	  _b,
-  	  1.0,
-  	  _r,
-  	  _g,
-  	  _b,
-  	  1.0,
-  	  _r,
-  	  _g,
-  	  _b,
-  	  1.0,
-  	  _r,
-  	  _g,
-  	  _b,
-  	  1.0,
-  	];
 
-  	const colorBuffer = gl.createBuffer();
-  	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+		const colorArray = colorArrayFromRGB(red, green, blue);
+		colorBuffers[count] = initGLBufferFromColorArray(gl, colorArray);
 
-		colorBuffers[count] = colorBuffer;
-		// cache the "raw" array for use later!
-		cachedColorBuffers[count] = colors;
+		// cache the "raw" array for use during sensor fusion.
+		cachedColorArrays[count] = colorArray;
 		count ++;
 	}
   return colorBuffers;
 }
 
-// how to get neighboring cells from a 1D representation of a 2D square grid:
+// How to get neighboring cells from a 1D representation of a 2D square grid:
 // above cell index = cur index - grid length (stay in bounds)
 // below cell index = cur index + grid length (stay in bounds)
 // left cell = cur index - 1 (only if cur index mod grid length != 0)
 // right index = cur index + 1 (only if cur index + 1 mod grid length != 0)
 // For edge cases, use wraparound logic (use the other side of the grid)
-
 function getAbove(index, gridSize, objectCount, colorBuffers, offset) {
 	if (index - gridSize < 0) {
 		return colorBuffers[objectCount-gridSize+index][offset];
@@ -131,6 +126,7 @@ function getRight(index, gridSize, colorBuffers, offset) {
 	}
 }
 
+// Take the average of the current sensor reading with it's neighbors
 function getAverageColorWithNeighbors(index, gridSize, objectCount, colorBuffers, offset) {
 	return (colorBuffers[index][offset] +
 				 getAbove(index,gridSize,objectCount,colorBuffers,offset) +
@@ -143,15 +139,15 @@ function doSensorFusion(gl, objectCount) {
 	let newColorBuffers = [];
 	let gridSize = Math.sqrt(objectCount);
 	let updatedColorBuffersCache = [];
-	let colorBuffers = cachedColorBuffers;
-
-	// would be nice if everything here was parameterized!
+	let colorBuffers = cachedColorArrays;
 
 	let count = 0;
 	while (count < objectCount) {
 
 		// This computes the "average" color of a cell with its 4 neighbors (above, below, left, right)
-  	const colors = [
+		// This is written for the general case (different colors in the array) even though
+		// up above we only ever init the color array to all the same color.
+  	const colorArray = [
   	  getAverageColorWithNeighbors(count,gridSize,objectCount,colorBuffers,0),
 			getAverageColorWithNeighbors(count,gridSize,objectCount,colorBuffers,1),
   	  getAverageColorWithNeighbors(count,gridSize,objectCount,colorBuffers,2),
@@ -170,16 +166,12 @@ function doSensorFusion(gl, objectCount) {
   	  1.0,
   	];
 
-  	const colorBuffer = gl.createBuffer();
-  	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-		newColorBuffers[count] = colorBuffer;
-		updatedColorBuffersCache[count] = colors;
+		newColorBuffers[count] = initGLBufferFromColorArray(gl, colorArray);
+		updatedColorBuffersCache[count] = colorArray;
 		count ++;
 	}
 
-	cachedColorBuffers = updatedColorBuffersCache;
+	cachedColorArrays = updatedColorBuffersCache;
 	return newColorBuffers;
 }
 
@@ -188,6 +180,8 @@ function initPositionBuffers(gl, objCount) {
 	let count = 0;
 	let curX = -2.0;
 	let curY = 2.0;
+
+	// TODO: would be nice if everything here was configurable via the simulator UI
 
 	// Create a grid of squares, each 0.125 length/width
 	// starting with negative X (and increasing) and positive Y (and decreasing)

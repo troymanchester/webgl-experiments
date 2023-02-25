@@ -18,25 +18,24 @@
 		<p>A grid of temperature sensors is simulated below. A red box = hotter temperature reading, blue box = colder temperature reading.</p>
 		<p>There is a slider to control the environment temperature. Each simulated sensor will "read" the environment temperature, with a small amount of psuedo-random noise applied to the reading to simulate real-world sensor noise.</p>
 		<p>There is another slider to simulate offline/malfunctioning sensors. A "dead" sensor will show up as a black box in the grid.</p>
-		<p>If you check the box labeled "Enable Sensor Fusion", sensor fusion will be performed - it should be noticeable in the visualization. Sensor readings will be run through a 1-pass spatial recursion algorithm (average each sensor reading with those of it's nearest neighbors).</p>
+		<p>If you check the box labeled "Enable Sensor Fusion", sensor fusion will be performed. Sensor readings will be run through a 1-pass spatial recursion algorithm (average each sensor reading with those of it's nearest neighbors). This is reflected in the visualization - notice how "hotspots" get "smoothed" out.</p>
     <canvas id="glcanvas" width="680" height="680"></canvas>
     <br></br>
     <button id="playButton">Play</button>&emsp;
     <button id="pauseButton">Pause</button>&emsp;
-    <button id="resetButton">Reset</button>&emsp;
 		<br></br>
-    <input type="checkbox" id="useFusion">
-    <label for="useFusion">Enable Sensor Fusion</label>
+    <input type="checkbox" id="useSensorFusion">
+    <label for="useSensorFusion">Enable Sensor Fusion</label>
 		<input type="checkbox" id="useBinarySensing">
     <label for="useBinarySensing">Enable Binary Sensor readings</label>
 		<br></br>
 		<div class="slidecontainer">
-			Simulation Temperature&emsp;
-			<input type="range" min="0" max="100" value="50" id="tempSetting">
+			Environment Temperature&emsp;
+			<input type="range" min="0" max="100" value="50" id="temperatureSlider">
 		</div>
 		<div class="slidecontainer">
-			Dead Sensor Percentage&emsp;
-			<input type="range" min="0" max="100" value="5" id="deadSetting">
+			Offline Sensor %&emsp;
+			<input type="range" min="0" max="100" value="5" id="offlineSensorSlider">
 		</div>
   </body>
 </html>

@@ -9,14 +9,12 @@ function initShaderProgram(gl, vsSource, fsSource) {
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
   // Create the shader program
-
   const shaderProgram = gl.createProgram();
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
   gl.linkProgram(shaderProgram);
 
   // If creating the shader program failed, alert
-
   if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
     alert(
       `Unable to initialize the shader program: ${gl.getProgramInfoLog(
@@ -37,15 +35,12 @@ function loadShader(gl, type, source) {
   const shader = gl.createShader(type);
 
   // Send the source to the shader object
-
   gl.shaderSource(shader, source);
 
   // Compile the shader program
-
   gl.compileShader(shader);
 
   // See if it compiled successfully
-
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
     alert(
       `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`
@@ -113,22 +108,23 @@ function main() {
 	  },
 	};
 
-	var tempSlider = document.getElementById("tempSetting");
-	let tempSliderVal = tempSlider.value;
-	tempSlider.oninput = function() {
-  	tempSliderVal = tempSlider.value;
+	var temperatureSlider = document.getElementById("temperatureSlider");
+	let temperatureVal = temperatureSlider.value;
+	temperatureSlider.oninput = function() {
+  	temperatureVal = temperatureSlider.value;
 	}
 
-	var deadSlider = document.getElementById("deadSetting");
-	let deadSliderVal = deadSlider.value;
-	deadSlider.oninput = function() {
-  	deadSliderVal = deadSlider.value;
+	var offlineSensorSlider = document.getElementById("offlineSensorSlider");
+	let offlineSensorVal = offlineSensorSlider.value;
+	offlineSensorSlider.oninput = function() {
+  	offlineSensorVal = offlineSensorSlider.value;
 	}
 
 	// Here's where we call the routine that builds all the
 	// objects we'll be drawing.
 	let buffers = initBuffers(gl,
-		tempSliderVal, deadSliderVal, document.getElementById("useBinarySensing").checked);
+														temperatureVal, 
+														offlineSensorVal);
 
 	let last = 0;
 	let isRendering = false;
@@ -137,9 +133,9 @@ function main() {
   	if(!last || now - last >= 1000) {
 			last = now;
 			buffers = updateBuffers(gl,buffers,
-															tempSliderVal,
-															deadSliderVal,
-															document.getElementById("useFusion").checked,
+															temperatureVal,
+															offlineSensorVal,
+															document.getElementById("useSensorFusion").checked,
 															document.getElementById("useBinarySensing").checked);
 			drawScene(gl, programInfo, buffers);
 		}
@@ -158,13 +154,8 @@ function main() {
 		isRendering = false;
 	}
 
-	function resetBuffers() {
-		buffers = initBuffers(gl);
-	}
-
 	document.getElementById("playButton").onclick = startRendering;
 	document.getElementById("pauseButton").onclick = stopRendering;
-	document.getElementById("resetButton").onclick = resetBuffers;
 
 	render(performance.now());
 }
