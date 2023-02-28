@@ -118,6 +118,14 @@ function main() {
 	let offlineSensorVal = offlineSensorSlider.value;
 	offlineSensorSlider.oninput = function() {
   	offlineSensorVal = offlineSensorSlider.value;
+		document.getElementById('offlineSensorPct').innerHTML = offlineSensorVal;
+	}
+
+	var sensorFusionSlider = document.getElementById("sensorFusionSlider");
+	let sensorFusionVal = sensorFusionSlider.value;
+	sensorFusionSlider.oninput = function() {
+  	sensorFusionVal = sensorFusionSlider.value;
+		document.getElementById('sensorFusionIterationCount').innerHTML = sensorFusionVal;
 	}
 
 	// Here's where we call the routine that builds all the
@@ -135,8 +143,7 @@ function main() {
 			buffers = updateBuffers(gl,buffers,
 															temperatureVal,
 															offlineSensorVal,
-															document.getElementById("useSensorFusion").checked,
-															document.getElementById("useBinarySensing").checked);
+															sensorFusionVal);
 			drawScene(gl, programInfo, buffers);
 		}
 

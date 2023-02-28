@@ -13,14 +13,13 @@ function initBuffers(gl, temperature, offlineSensors) {
 	};
 }
 
-function updateBuffers(gl, buffers, temperature, offlineSensors, useSensorFusion, useBinaryReadings) {
-	let colorBuffers;
-	if (useSensorFusion) {
-		// after init, do 1 pass of sensor fusion
-		colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature,offlineSensors,useBinaryReadings);
+function updateBuffers(gl, buffers, temperature, offlineSensors, sensorFusionIterationCount) {
+	// after init, do requested passes of sensor fusion
+	let colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature,offlineSensors);
+	let count = 0;
+	while (count < sensorFusionIterationCount) {
 		colorBuffers = doSensorFusion(gl,buffers.objectCount,buffers.colors);
-	} else {
-		colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature,offlineSensors,useBinaryReadings);
+		count ++;
 	}
 
 	return {
@@ -46,31 +45,18 @@ function initGLBufferFromColorArray(gl, colors) {
 	return colorBuffer;
 }
 
-function initColorBuffers(gl, objCount, temperature, offlineSensors, useBinaryReadings) {
+function initColorBuffers(gl, objCount, temperature, offlineSensors) {
 	let colorBuffers = [];
 	let count = 0;
 
 	while (count < objCount) {
 		// green is always 0 since we're using red-blue spectrum to represent temperature
-		let red;
 		const green = 0.0;
-		let blue;
 
-		// Ignore noise if using binary sensor readings
-		if (useBinaryReadings) {
-			if (Math.random()*100 > 50) {
-				red = 1.0;
-				blue = 0.0;
-			} else {
-				red = 0.0;
-				blue = 1.0;
-			}
-		} else {
-			// noise can be in either direction (+ or -)
-			let noise = (Math.random()-Math.random())*0.5;
-			red = temperature*0.01 + noise;
-			blue = 1 - red + noise;
-		}
+		// noise can be in either direction (+ or -)
+		let noise = (Math.random()-Math.random())*0.5;
+		let red = temperature*0.01 + noise;
+		let blue = 1 - red + noise;
 
 		// Simulate some % of "dead" sensors
 		if (Math.random()*100 < offlineSensors) {
