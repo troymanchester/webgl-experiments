@@ -1,5 +1,6 @@
 # WebGL Experiments
 
+* [Random 2D Grid demo](https://github.com/troymanchester/webgl-experiments/tree/main/src/random-grid-demo)
 * [Sensor Fusion Visualizer](https://github.com/troymanchester/webgl-experiments/tree/main/src/sensor-fusion-demo)
 
 ## Local Development
