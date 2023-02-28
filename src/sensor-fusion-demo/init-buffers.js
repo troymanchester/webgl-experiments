@@ -2,7 +2,7 @@
 let cachedColorArrays = [];
 
 function initBuffers(gl, temperature, offlineSensors) {
-	const objCount = 256
+	const objCount = 3025;
 	const positionBuffers = initPositionBuffers(gl,objCount);
 	const colorBuffers = initColorBuffers(gl,objCount, temperature, offlineSensors, false);
 
@@ -178,8 +178,8 @@ function doSensorFusion(gl, objectCount) {
 function initPositionBuffers(gl, objCount) {
 	let positionBuffers = [];
 	let count = 0;
-	let curX = -2.0;
-	let curY = 2.0;
+	let curX = -2.5;
+	let curY = 2.5;
 
 	// TODO: would be nice if everything here was configurable via the simulator UI
 
@@ -196,7 +196,7 @@ function initPositionBuffers(gl, objCount) {
 		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 	
 		// Now create an array of positions for the square.
-		const positions = [curX, curY, curX, curY+0.125, curX+0.125, curY, curX+0.125, curY+0.125];
+		const positions = [curX, curY, curX, curY+0.0625, curX+0.0625, curY, curX+0.0625, curY+0.0625];
 	
 		// Now pass the list of positions into WebGL to build the
 		// shape. We do this by creating a Float32Array from the
@@ -206,10 +206,10 @@ function initPositionBuffers(gl, objCount) {
 		positionBuffers[count] = positionBuffer;
 
 		if ((count+1) % gridSize == 0) {
-			curY -= 0.25;
-			curX = -2.0;
+			curY -= 0.09375;
+			curX = -2.5;
 		} else {
-			curX += 0.25;
+			curX += 0.09375;
 		}
 
 		count ++;
