@@ -114,6 +114,12 @@ function main() {
   	temperatureVal = temperatureSlider.value;
 	}
 
+	var sensorNoiseSlider = document.getElementById("sensorNoiseSlider");
+	let sensorNoiseVal = sensorNoiseSlider.value;
+	sensorNoiseSlider.oninput = function() {
+  	sensorNoiseVal = sensorNoiseSlider.value;
+	}
+
 	var offlineSensorSlider = document.getElementById("offlineSensorSlider");
 	let offlineSensorVal = offlineSensorSlider.value;
 	offlineSensorSlider.oninput = function() {
@@ -132,6 +138,7 @@ function main() {
 	// objects we'll be drawing.
 	let buffers = initBuffers(gl,
 														temperatureVal, 
+														sensorNoiseVal,
 														offlineSensorVal);
 
 	let last = 0;
@@ -142,6 +149,7 @@ function main() {
 			last = now;
 			buffers = updateBuffers(gl,buffers,
 															temperatureVal,
+															sensorNoiseVal,
 															offlineSensorVal,
 															sensorFusionVal);
 			drawScene(gl, programInfo, buffers);

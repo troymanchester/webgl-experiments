@@ -17,17 +17,15 @@
 		<p>Sensor fusion involves synthesizing data from multiple sensors in order to decrease uncertainty of the information being sensed.</p>
 		<p>A grid of temperature sensors is simulated below. A red box = hotter temperature reading, blue box = colder temperature reading.</p>
     <p>The slider labeled "Sensor Fusion Iterations" controls the number of iterations of sensor fusion to run. Sensor readings will be run through a spatial recursion algorithm (average each sensor reading with those of it's nearest neighbors). This is reflected in the visualization - notice how "hotspots" get "smoothed" out as number of iterations is increased.</p>
-    <p>There is a slider to control the environment temperature. Each simulated sensor will "read" the environment temperature, with a small amount of psuedo-random noise applied to the reading to simulate real-world sensor noise.</p>
-		<p>There is another slider to simulate offline/malfunctioning sensors. With no sensor fusion (0 iterations), a "dead" sensor will show up as a black box in the grid.</p>
+    <p>There is a slider to control the environment temperature. Each simulated sensor will "read" the environment temperature, with some amount of psuedo-random noise applied to the reading to simulate real-world sensor noise.</p>
+    <p>The "Sensor Noise" slider controls the amount of psuedo-random noise in sensor "readings". A low slider value means sensor readings are more consistent, whereas max slider value is essentially giving random readings.</p>
+    <p>The last slider is to simulate offline/malfunctioning sensors. With no sensor fusion (0 iterations), a "dead" sensor will show up as a black box in the grid.</p>
+    <p>Using the different sliders, you can experiment & observe the effects of different conditions. For example, lower sensor noise should require fewer sensor fusion iterations to get a smooth output visualization.</p>
     <canvas id="glcanvas" width="680" height="680"></canvas>
     <br></br>
     <button id="playButton">Play</button>&emsp;
     <button id="pauseButton">Pause</button>&emsp;
 		<br></br>
-    <!--<input type="checkbox" id="useSensorFusion">
-    <label for="useSensorFusion">Enable Sensor Fusion</label>
-		<input type="checkbox" id="useBinarySensing">
-    <label for="useBinarySensing">Enable Binary Sensor readings</label>-->
     <div class="slidecontainer">
 			Sensor Fusion Iterations:&nbsp;
       <output id="sensorFusionIterationCount">1</output>&nbsp;
@@ -36,6 +34,10 @@
 		<div class="slidecontainer">
 			Environment Temperature&emsp;
 			<input type="range" min="0" max="100" value="50" id="temperatureSlider">
+		</div>
+    <div class="slidecontainer">
+			Sensor Noise&emsp;
+			<input type="range" min="0" max="100" value="50" id="sensorNoiseSlider">
 		</div>
 		<div class="slidecontainer">
 			% of Offline Sensors:&nbsp;

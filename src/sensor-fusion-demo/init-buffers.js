@@ -1,10 +1,10 @@
 // this is used to "remember" the colors after we've written them to GL buffer.
 let cachedColorArrays = [];
 
-function initBuffers(gl, temperature, offlineSensors) {
+function initBuffers(gl, temperature, sensorNoise, offlineSensors) {
 	const objCount = 3025;
 	const positionBuffers = initPositionBuffers(gl,objCount);
-	const colorBuffers = initColorBuffers(gl,objCount, temperature, offlineSensors, false);
+	const colorBuffers = initColorBuffers(gl,objCount, temperature, sensorNoise, offlineSensors);
 
 	return {
 		positions: positionBuffers,
@@ -13,9 +13,9 @@ function initBuffers(gl, temperature, offlineSensors) {
 	};
 }
 
-function updateBuffers(gl, buffers, temperature, offlineSensors, sensorFusionIterationCount) {
+function updateBuffers(gl, buffers, temperature, sensorNoise, offlineSensors, sensorFusionIterationCount) {
 	// after init, do requested passes of sensor fusion
-	let colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature,offlineSensors);
+	let colorBuffers = initColorBuffers(gl,buffers.objectCount,temperature, sensorNoise, offlineSensors);
 	let count = 0;
 	while (count < sensorFusionIterationCount) {
 		colorBuffers = doSensorFusion(gl,buffers.objectCount,buffers.colors);
@@ -45,7 +45,7 @@ function initGLBufferFromColorArray(gl, colors) {
 	return colorBuffer;
 }
 
-function initColorBuffers(gl, objCount, temperature, offlineSensors) {
+function initColorBuffers(gl, objCount, temperature, sensorNoise, offlineSensors) {
 	let colorBuffers = [];
 	let count = 0;
 
@@ -54,7 +54,7 @@ function initColorBuffers(gl, objCount, temperature, offlineSensors) {
 		const green = 0.0;
 
 		// noise can be in either direction (+ or -)
-		let noise = (Math.random()-Math.random())*0.5;
+		let noise = (Math.random()-Math.random())*(sensorNoise*0.01);
 		let red = temperature*0.01 + noise;
 		let blue = 1 - red + noise;
 
